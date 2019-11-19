@@ -1,0 +1,11 @@
+{
+  "name": "message-board",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:Icy-xuyan/message-board.git",
+  "author": "xuyan <751745121@qq.com>",
+  "license": "MIT",
+  "dependencies": {
+    "mime": "^2.4.4"
+  }
+}
