@@ -6,6 +6,7 @@
   "author": "xuyan <751745121@qq.com>",
   "license": "MIT",
   "dependencies": {
+    "art-template": "^4.13.2",
     "mime": "^2.4.4"
   }
 }
