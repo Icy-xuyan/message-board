@@ -3,7 +3,9 @@ const fs = require('fs')
 const path = require('path')
 const mime = require('mime')
 const template = require('art-template')
+const URL = require('url')
 const server = http.createServer()
+let dbPath = path.join(__dirname, 'data.json')
 
 server.on('request', (req, res) => {
     let url = req.url
@@ -19,13 +21,34 @@ server.on('request', (req, res) => {
             }
             res.end(data)
         })
-    } else if (url === '/index') {
+    } else if (url === '/index' || url === '/') {
         let filePath = path.join(__dirname, 'views', 'index.html')
-        let dbPath = path.join(__dirname, 'data.json')
         fs.readFile(dbPath, (err, data) => {
-            if(err) throw err
+            if (err) return console.log('读取数据库文件失败')
             let html = template(filePath, JSON.parse(data))
             res.end(html)
+        })
+    } else if (url.startsWith('/delete')) {
+        /**
+         * 1. 读取传过来的id
+         * 2. 读取data.json文件
+         * 3. 删除data.json中对应id的数据
+         * 4. 更新data.json
+         * 5. 返回首页
+         */
+        let id = URL.parse(url, true).query.id
+        fs.readFile(dbPath, (err, data) => {
+            if (err) return console.log('读取数据库文件失败')
+            data = JSON.parse(data)
+            data.total--
+            data.list = data.list.filter(item => item.id !== +id)
+            fs.writeFile(dbPath, JSON.stringify(data, null, 2), err => {
+                if (err) return console.log('写入数据库失败');
+                res.writeHead(302, {
+                    'Location': '/'
+                })
+                res.end()
+            })
         })
     } else if (url === '/add') {
         let filePath = path.join(__dirname, 'views', 'add.html')
