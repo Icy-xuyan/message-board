@@ -25,8 +25,7 @@ server.on("request", (req, res) => {
     });
   } else if (url === "/index" || url === "/") {
     let filePath = path.join(__dirname, "views", "index.html");
-    fs.readFile(dbPath, (err, data) => {
-      if (err) return console.log("读取数据库文件失败");
+    readFile(dbPath, function(data) {
       let html = template(filePath, JSON.parse(data));
       res.end(html);
     });
@@ -39,17 +38,10 @@ server.on("request", (req, res) => {
      * 5. 返回首页
      */
     let id = URL.parse(url, true).query.id;
-    fs.readFile(dbPath, (err, data) => {
-      if (err) return console.log("读取数据库文件失败");
+    readFile(dbPath, function(data) {
       data = JSON.parse(data);
       data.list = data.list.filter(item => item.id !== +id);
-      fs.writeFile(dbPath, JSON.stringify(data, null, 2), err => {
-        if (err) return console.log("写入数据库失败");
-        res.writeHead(302, {
-          Location: "/"
-        });
-        res.end();
-      });
+      writeFile(res, data);
     });
   } else if (url.startsWith("/fb") && req.method === "GET") {
     /**
@@ -66,18 +58,10 @@ server.on("request", (req, res) => {
       id: +new Date(),
       time: moment().format("YYYY年MM月DD日 HH:mm:ss")
     };
-    fs.readFile(dbPath, (err, data) => {
-      if (err) return console.log("读取数据库文件失败");
+    readFile(dbPath, function(data) {
       data = JSON.parse(data);
       data.list.unshift(addData);
-      console.log(data);
-      fs.writeFile(dbPath, JSON.stringify(data, null, 2), err => {
-        if (err) return console.log("写入数据库失败");
-        res.writeHead(302, {
-          Location: "/"
-        });
-        res.end();
-      });
+      writeFile(res, data);
     });
   } else if (url.startsWith("/fb") && req.method === "POST") {
     let result = "";
@@ -91,17 +75,10 @@ server.on("request", (req, res) => {
         id: +new Date(),
         time: moment().format("YYYY年MM月DD日 HH:mm:ss")
       };
-      fs.readFile(dbPath, (err, data) => {
-        if (err) return console.log("数据库文件读取失败");
+      readFile(dbPath, function(data) {
         data = JSON.parse(data);
         data.list.unshift(addData);
-        fs.writeFile(dbPath, JSON.stringify(data, null, 2), err => {
-          if (err) return console.log("写入数据库文件失败");
-          res.writeHead(302, {
-            Location: "/"
-          });
-          res.end();
-        });
+        writeFile(res, data);
       });
     });
   } else if (url === "/add") {
@@ -121,6 +98,25 @@ server.on("request", (req, res) => {
     res.end("404");
   }
 });
+
+//写文件
+function writeFile(res, data) {
+  fs.writeFile(dbPath, JSON.stringify(data, null, 2), err => {
+    if (err) return console.log("写入数据库文件失败");
+    res.writeHead(302, {
+      Location: "/"
+    });
+    res.end();
+  });
+}
+
+//读文件
+function readFile(filePath, callback) {
+  fs.readFile(filePath, (err, data) => {
+    if (err) return console.log("读取数据库文件失败");
+    callback && callback(data);
+  });
+}
 
 server.listen(9999, _ => {
   console.log("服务器启动成功 请访问: http://localhost:9999");
