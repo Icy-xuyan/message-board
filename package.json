@@ -7,6 +7,8 @@
   "license": "MIT",
   "dependencies": {
     "art-template": "^4.13.2",
-    "mime": "^2.4.4"
+    "mime": "^2.4.4",
+    "moment": "^2.24.0",
+    "querystring": "^0.2.0"
   }
 }
