@@ -40,8 +40,35 @@ server.on('request', (req, res) => {
         fs.readFile(dbPath, (err, data) => {
             if (err) return console.log('读取数据库文件失败')
             data = JSON.parse(data)
-            data.total--
             data.list = data.list.filter(item => item.id !== +id)
+            fs.writeFile(dbPath, JSON.stringify(data, null, 2), err => {
+                if (err) return console.log('写入数据库失败');
+                res.writeHead(302, {
+                    'Location': '/'
+                })
+                res.end()
+            })
+        })
+    } else if (url.startsWith('/fb') && req.method === "GET") {
+        /**
+         * 获取添加的参数信息
+         * 读取data.json文件
+         * 添加
+         * 更新data.json
+         * 重定向回首页
+         */
+        let query = URL.parse(url, true).query
+        console.log(query);
+        let addData = {
+            ...query,
+            id: +new Date(),
+            time: '2019年06月01日 18:45:06'
+        }
+        fs.readFile(dbPath, (err, data) => {
+            if (err) return console.log('读取数据库文件失败');
+            data = JSON.parse(data)
+            data.list.unshift(addData)
+            console.log(data);
             fs.writeFile(dbPath, JSON.stringify(data, null, 2), err => {
                 if (err) return console.log('写入数据库失败');
                 res.writeHead(302, {
