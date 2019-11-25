@@ -119,6 +119,6 @@ module.exports = {
         res.writeHead(404, {
             'content-type': 'text/html;charset=utf-8'
         })
-        res.end('404 你访问的资源不存在~')
+        res.end('404 你访问的资源不存在~~')
     }
 }
