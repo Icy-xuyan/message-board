@@ -1,3 +1,4 @@
+//事件处理模块
 const fs = require('fs')
 const path = require('path')
 const mime = require('mime')
@@ -6,13 +7,12 @@ const template = require('art-template')
 const moment = require('moment')
 const querystring = require('querystring')
 
-let dbPath = path.join(__dirname, 'data.json')
+const db = require('./db')
 
 module.exports = {
     renderIndex(req, res) {
         let filePath = path.join(__dirname, 'views', 'index.html')
-        fs.readFile(dbPath, (err, data) => {
-            if (err) return console.log('数据库文件读取失败')
+        db.readFile(function (data) {
             let html = template(filePath, JSON.parse(data))
             res.end(html)
         })
@@ -32,12 +32,10 @@ module.exports = {
          * 重定向首页
          */
         let id = URL.parse(req.url, true).query.id
-        fs.readFile(dbPath, (err, data) => {
-            if (err) return console.log('数据库文件读取失败')
+        db.readFile(function (data) {
             data = JSON.parse(data)
             data.list = data.list.filter(item => item.id !== +id)
-            fs.writeFile(dbPath, JSON.stringify(data, null, 2), err => {
-                if (err) return console.log('数据库文件写入失败')
+            db.writeFile(data, function () {
                 res.writeHead(302, {
                     'Location': '/'
                 })
@@ -58,12 +56,10 @@ module.exports = {
             id: +new Date,
             time: moment().format('YYYY年MM月DD日 HH:mm:ss')
         }
-        fs.readFile(dbPath, (err, data) => {
-            if (err) return console.log('数据库文件读取失败')
+        db.readFile(function (data) {
             data = JSON.parse(data)
             data.list.unshift(add)
-            fs.writeFile(dbPath, JSON.stringify(data, null, 2), err => {
-                if (err) return console.log('数据库文件写入失败')
+            db.writeFile(data, function () {
                 res.writeHead(302, {
                     'Location': '/'
                 })
@@ -90,12 +86,10 @@ module.exports = {
                 id: +new Date,
                 time: moment().format('YYYY年MM月DD日 HH:mm:ss')
             }
-            fs.readFile(dbPath, (err, data) => {
-                if (err) return console.log('数据库文件读取失败')
+            db.readFile(function (data) {
                 data = JSON.parse(data)
                 data.list.unshift(add)
-                fs.writeFile(dbPath, JSON.stringify(data, null, 2), err => {
-                    if (err) return console.log('数据库文件写入失败')
+                db.writeFile(data, function () {
                     res.writeHead(302, {
                         'Location': '/'
                     })
